@@ -1,0 +1,11 @@
+bin/
+obj/
+dist/
+tests/bin/
+tests/obj/
+tests/runtime*/
+.vs/
+*.user
+*.suo
+__pycache__/
+tests/real_service_result.json

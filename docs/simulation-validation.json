@@ -1,0 +1,222 @@
+{
+  "checks": [
+    "weekly remaining percentage",
+    "server total count retained independently of one detail",
+    "one detail row shown",
+    "missing config defaults to three seconds",
+    "startup asks for full details",
+    "three second default polling",
+    "ordinary polls exclude details",
+    "ordinary polls retain details",
+    "applied interval saved beside executable",
+    "changed interval applies immediately",
+    "count change immediately refreshes details",
+    "thirty clicks coalesce into one pending refresh",
+    "manual refreshes request full details",
+    "failure preserves last successful data",
+    "process exit reconnects and manual refresh bypasses backoff",
+    "close completes within three seconds",
+    "no process remains after close",
+    "saved settings restored after restart",
+    "notification traffic cannot extend request timeout",
+    "process count remains constant during soak",
+    "private memory growth below eight MiB",
+    "full details refreshed every sixty seconds",
+    "close completes within three seconds",
+    "no process remains after close",
+    "only handshake and read-only query methods used"
+  ],
+  "samples": [
+    {
+      "time": 1794820706.9782076,
+      "processes": 5,
+      "private_bytes": 72740864,
+      "cpu_seconds": 0.78125,
+      "handles": 1170,
+      "elapsed": 0.006,
+      "polls": 15
+    },
+    {
+      "time": 1794820736.9893343,
+      "processes": 5,
+      "private_bytes": 69017600,
+      "cpu_seconds": 0.8125,
+      "handles": 1144,
+      "elapsed": 30.017,
+      "polls": 25
+    },
+    {
+      "time": 1794820767.0005221,
+      "processes": 5,
+      "private_bytes": 68853760,
+      "cpu_seconds": 0.8125,
+      "handles": 1143,
+      "elapsed": 60.028,
+      "polls": 35
+    },
+    {
+      "time": 1794820797.0169616,
+      "processes": 5,
+      "private_bytes": 68853760,
+      "cpu_seconds": 0.828125,
+      "handles": 1143,
+      "elapsed": 90.044,
+      "polls": 45
+    },
+    {
+      "time": 1794820827.0298774,
+      "processes": 5,
+      "private_bytes": 68669440,
+      "cpu_seconds": 0.828125,
+      "handles": 1135,
+      "elapsed": 120.057,
+      "polls": 55
+    },
+    {
+      "time": 1794820857.0426989,
+      "processes": 5,
+      "private_bytes": 68669440,
+      "cpu_seconds": 0.828125,
+      "handles": 1132,
+      "elapsed": 150.07,
+      "polls": 65
+    },
+    {
+      "time": 1794820887.054754,
+      "processes": 5,
+      "private_bytes": 68751360,
+      "cpu_seconds": 0.828125,
+      "handles": 1133,
+      "elapsed": 180.082,
+      "polls": 75
+    },
+    {
+      "time": 1794820917.066775,
+      "processes": 5,
+      "private_bytes": 68751360,
+      "cpu_seconds": 0.84375,
+      "handles": 1133,
+      "elapsed": 210.094,
+      "polls": 85
+    },
+    {
+      "time": 1794820947.0789495,
+      "processes": 5,
+      "private_bytes": 68751360,
+      "cpu_seconds": 0.859375,
+      "handles": 1133,
+      "elapsed": 240.106,
+      "polls": 95
+    },
+    {
+      "time": 1794820977.0909858,
+      "processes": 5,
+      "private_bytes": 68603904,
+      "cpu_seconds": 0.921875,
+      "handles": 1125,
+      "elapsed": 270.118,
+      "polls": 105
+    },
+    {
+      "time": 1794821007.1033778,
+      "processes": 5,
+      "private_bytes": 72032256,
+      "cpu_seconds": 0.953125,
+      "handles": 1125,
+      "elapsed": 300.131,
+      "polls": 115
+    },
+    {
+      "time": 1794821037.114834,
+      "processes": 5,
+      "private_bytes": 72032256,
+      "cpu_seconds": 0.984375,
+      "handles": 1125,
+      "elapsed": 330.142,
+      "polls": 125
+    },
+    {
+      "time": 1794821067.1269464,
+      "processes": 5,
+      "private_bytes": 72060928,
+      "cpu_seconds": 0.984375,
+      "handles": 1131,
+      "elapsed": 360.154,
+      "polls": 135
+    },
+    {
+      "time": 1794821097.1393602,
+      "processes": 5,
+      "private_bytes": 71995392,
+      "cpu_seconds": 1.0,
+      "handles": 1131,
+      "elapsed": 390.167,
+      "polls": 145
+    },
+    {
+      "time": 1794821127.151356,
+      "processes": 5,
+      "private_bytes": 68702208,
+      "cpu_seconds": 1.046875,
+      "handles": 1131,
+      "elapsed": 420.179,
+      "polls": 155
+    },
+    {
+      "time": 1794821157.164216,
+      "processes": 5,
+      "private_bytes": 68640768,
+      "cpu_seconds": 1.046875,
+      "handles": 1127,
+      "elapsed": 450.192,
+      "polls": 165
+    },
+    {
+      "time": 1794821187.1763847,
+      "processes": 5,
+      "private_bytes": 68579328,
+      "cpu_seconds": 1.046875,
+      "handles": 1121,
+      "elapsed": 480.204,
+      "polls": 175
+    },
+    {
+      "time": 1794821217.188396,
+      "processes": 5,
+      "private_bytes": 68579328,
+      "cpu_seconds": 1.078125,
+      "handles": 1121,
+      "elapsed": 510.216,
+      "polls": 185
+    },
+    {
+      "time": 1794821247.2012663,
+      "processes": 5,
+      "private_bytes": 68579328,
+      "cpu_seconds": 1.109375,
+      "handles": 1121,
+      "elapsed": 540.229,
+      "polls": 195
+    },
+    {
+      "time": 1794821277.2136118,
+      "processes": 5,
+      "private_bytes": 68579328,
+      "cpu_seconds": 1.125,
+      "handles": 1121,
+      "elapsed": 570.241,
+      "polls": 205
+    },
+    {
+      "time": 1794821306.9782615,
+      "processes": 5,
+      "private_bytes": 70897664,
+      "cpu_seconds": 1.171875,
+      "handles": 1121,
+      "elapsed": 600.006,
+      "polls": 215
+    }
+  ],
+  "real_service": false,
+  "passed": true
+}

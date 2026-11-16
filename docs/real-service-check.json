@@ -1,0 +1,9 @@
+{
+  "success": false,
+  "status": "Codex 启动被拒绝访问，请检查本机 Codex 目录权限；暂无数据",
+  "five_hour": "剩余：暂无数据",
+  "weekly": "剩余：暂无数据",
+  "reset_count": "可用重置次数：暂无数据",
+  "last_update": "最后成功更新：暂无数据",
+  "remaining_tree_processes": 0
+}
