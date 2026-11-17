@@ -62,4 +62,16 @@ bool SaveRefreshInterval(const std::wstring& iniPath, int seconds, std::wstring&
     error = L"无法保存 " + iniPath + L"（错误 " + std::to_wstring(code) + L"）：" + message;
     return false;
 }
+int LoadQuotaFontSize(const std::wstring& iniPath, const wchar_t* key) {
+    wchar_t text[32]{};
+    GetPrivateProfileStringW(L"Settings", key, L"", text, static_cast<DWORD>(std::size(text)), iniPath.c_str());
+    const auto value = ParseRefreshInterval(text);
+    return value && *value >= 8 && *value <= 14 ? *value : 9;
+}
+
+bool SaveQuotaFontSize(const std::wstring& iniPath, const wchar_t* key, int size) {
+    if (iniPath.empty() || size < 8 || size > 14) return false;
+    const auto text = std::to_wstring(size);
+    return WritePrivateProfileStringW(L"Settings", key, text.c_str(), iniPath.c_str()) != FALSE;
+}
 } // namespace usage

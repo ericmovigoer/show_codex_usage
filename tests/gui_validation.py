@@ -49,6 +49,19 @@ def window_for(pid):
     return found[0] if found else None
 
 
+def settings_for(pid):
+    found = []
+    @CALLBACK
+    def visit(hwnd, unused):
+        value = W.DWORD()
+        user.GetWindowThreadProcessId(hwnd, C.byref(value))
+        if value.value == pid and user.GetDlgItem(hwnd, 1020):
+            found.append(hwnd)
+        return True
+    user.EnumWindows(visit, 0)
+    return found[0] if found else None
+
+
 def text(hwnd, control):
     buf = C.create_unicode_buffer(2048)
     user.SendMessageW(user.GetDlgItem(hwnd, control), 0xD, len(buf), C.addressof(buf))
@@ -206,7 +219,25 @@ def main():
         check("37.5%" in text(hwnd, 1006), "weekly remaining percentage")
         check(text(hwnd, 1009).endswith("9"), "server total count retained independently of one detail")
         check(user.SendMessageW(user.GetDlgItem(hwnd, 1011), 0x1004, 0, 0) == 1, "one detail row shown")
+        check(text(hwnd, 1001) == "5 小时额度" and text(hwnd, 1005) == "每周额度"
+              and text(hwnd, 1012) == "刷新间隔（秒）" and text(hwnd, 1019) == "设置",
+              "main window labels display Chinese")
+        list_handle = user.GetDlgItem(hwnd, 1011)
+        check(user.SendMessageW(list_handle, 0x1028, 0, 0) >= 1, "first detail row fully visible")
         check(text(hwnd, 1013) == "3", "missing config defaults to three seconds")
+        check(not user.GetDlgItem(hwnd, 1016) and not user.GetDlgItem(hwnd, 1018), "removed unused status rows")
+        old_font = user.SendMessageW(user.GetDlgItem(hwnd, 1002), 0x31, 0, 0)
+        click(hwnd, 1019)
+        dialog = wait(lambda: settings_for(process.pid), message="font settings dialog")
+        check(text(dialog, 1) == "确定" and text(dialog, 2) == "取消", "settings buttons display Chinese")
+        check(text(dialog, 1020) == "9" and text(dialog, 1021) == "9", "font sizes default to nine")
+        set_text(dialog, 1020, "12")
+        set_text(dialog, 1021, "11")
+        click(dialog, 1)
+        wait(lambda: not settings_for(process.pid), message="font settings closed")
+        check(user.SendMessageW(user.GetDlgItem(hwnd, 1002), 0x31, 0, 0) != old_font, "font applied immediately")
+        saved = (root / "CodexUsage.ini").read_text()
+        check("FiveHourFontSize=12" in saved and "WeeklyFontSize=11" in saved, "both font sizes saved")
         check(not polls(root)[0]["params"]["excludeResetCreditDetails"], "startup asks for full details")
         wait(lambda: len(polls(root)) >= 2, timeout=8, message="default polling")
         items = polls(root)
@@ -215,7 +246,7 @@ def main():
         check(user.SendMessageW(user.GetDlgItem(hwnd, 1011), 0x1004, 0, 0) == 1, "ordinary polls retain details")
         set_text(hwnd, 1013, "1")
         click(hwnd, 1014)
-        wait(lambda: (root / "CodexUsage.ini").exists(), message="save ini")
+        wait(lambda: "RefreshIntervalSeconds=1" in (root / "CodexUsage.ini").read_text(), message="save interval")
         check("RefreshIntervalSeconds=1" in (root / "CodexUsage.ini").read_text(), "applied interval saved beside executable")
         before = len(polls(root))
         wait(lambda: len(polls(root)) >= before + 2, timeout=4, message="updated polling interval")
@@ -253,6 +284,11 @@ def main():
         process, hwnd = launch()
         wait(lambda: "75.0%" in text(hwnd, 1002), message="restart data")
         check(text(hwnd, 1013) == "3600", "saved settings restored after restart")
+        click(hwnd, 1019)
+        dialog = wait(lambda: settings_for(process.pid), message="font settings reopened")
+        check(text(dialog, 1020) == "12" and text(dialog, 1021) == "11", "font sizes restored after restart")
+        click(dialog, 2)
+        wait(lambda: not settings_for(process.pid), message="font settings cancelled")
         # A notification stream cannot postpone the 15-second request timeout.
         state(notifications=True)
         before = len(polls(root))

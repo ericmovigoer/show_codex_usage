@@ -4,9 +4,39 @@
 #include <array>
 #include <cmath>
 
+namespace {
+class FontSettingsDialog final : public CDialogEx {
+public:
+    FontSettingsDialog(int five, int week, CWnd* parent)
+        : CDialogEx(IDD_SETTINGS, parent), fiveSize(five), weekSize(week) {}
+    int fiveSize;
+    int weekSize;
+protected:
+    BOOL OnInitDialog() override {
+        CDialogEx::OnInitDialog();
+        SetDlgItemInt(IDC_FIVE_FONT_SIZE, fiveSize, FALSE);
+        SetDlgItemInt(IDC_WEEK_FONT_SIZE, weekSize, FALSE);
+        return TRUE;
+    }
+    void OnOK() override {
+        BOOL fiveValid = FALSE, weekValid = FALSE;
+        const UINT five = GetDlgItemInt(IDC_FIVE_FONT_SIZE, &fiveValid, FALSE);
+        const UINT week = GetDlgItemInt(IDC_WEEK_FONT_SIZE, &weekValid, FALSE);
+        if (!fiveValid || !weekValid || five < 8 || five > 14 || week < 8 || week > 14) {
+            MessageBox(L"请输入 8～14 之间的整数。", L"字体大小无效", MB_OK | MB_ICONINFORMATION);
+            return;
+        }
+        fiveSize = static_cast<int>(five);
+        weekSize = static_cast<int>(week);
+        CDialogEx::OnOK();
+    }
+};
+}
+
 BEGIN_MESSAGE_MAP(MainDialog, CDialogEx)
     ON_BN_CLICKED(IDC_APPLY, &MainDialog::OnApply)
     ON_BN_CLICKED(IDC_REFRESH, &MainDialog::OnRefresh)
+    ON_BN_CLICKED(IDC_SETTINGS, &MainDialog::OnSettings)
     ON_WM_CLOSE()
     ON_WM_SIZE()
     ON_WM_GETMINMAXINFO()
@@ -39,6 +69,9 @@ BOOL MainDialog::OnInitDialog() {
     weekProgress_.SetRange32(0, 1000);
     static_cast<CEdit*>(GetDlgItem(IDC_INTERVAL))->SetLimitText(12);
     iniPath_ = usage::DefaultIniPath();
+    fiveFontSize_ = usage::LoadQuotaFontSize(iniPath_, L"FiveHourFontSize");
+    weekFontSize_ = usage::LoadQuotaFontSize(iniPath_, L"WeeklyFontSize");
+    ApplyQuotaFonts();
     const int interval = usage::LoadRefreshInterval(iniPath_);
     SetDlgItemInt(IDC_INTERVAL, static_cast<UINT>(interval), FALSE);
     RememberLayout();
@@ -53,11 +86,11 @@ void MainDialog::RememberLayout() {
     originalClient_ = rect.Size();
     GetWindowRect(rect);
     minimumWindow_ = rect.Size();
-    const std::array<int, 18> ids = {
+    const std::array<int, 17> ids = {
         IDC_FIVE_GROUP, IDC_FIVE_REMAINING, IDC_FIVE_PROGRESS, IDC_FIVE_RESET,
         IDC_WEEK_GROUP, IDC_WEEK_REMAINING, IDC_WEEK_PROGRESS, IDC_WEEK_RESET,
         IDC_RESET_COUNT, IDC_DETAILS_TIME, IDC_DETAILS, IDC_INTERVAL_LABEL,
-        IDC_INTERVAL, IDC_APPLY, IDC_REFRESH, IDC_READONLY, IDC_STATUS, IDC_LAST_SUCCESS
+        IDC_INTERVAL, IDC_APPLY, IDC_REFRESH, IDC_SETTINGS, IDC_STATUS
     };
     for (const int id : ids) {
         GetDlgItem(id)->GetWindowRect(rect);
@@ -91,7 +124,7 @@ void MainDialog::OnSize(UINT type, int width, int height) {
         case IDC_RESET_COUNT: case IDC_DETAILS_TIME:
             rect.right += dx;
             break;
-        case IDC_STATUS: case IDC_LAST_SUCCESS: case IDC_READONLY:
+        case IDC_STATUS:
             rect.right += dx;
             rect.OffsetRect(0, dy);
             break;
@@ -203,6 +236,36 @@ void MainDialog::OnApply() {
             error + L"\n\n配置位置：" + iniPath_;
         MessageBox(message.c_str(), L"无法保存设置", MB_OK | MB_ICONWARNING);
     }
+}
+
+void MainDialog::ApplyQuotaFonts() {
+    auto apply = [this](CFont& font, int size, int group, int remaining, int reset) {
+        LOGFONTW spec{};
+        GetFont()->GetLogFont(&spec);
+        CClientDC dc(this);
+        spec.lfHeight = -MulDiv(size, dc.GetDeviceCaps(LOGPIXELSY), 72);
+        CFont replacement;
+        if (!replacement.CreateFontIndirectW(&spec)) return;
+        // Controls must stop using the previous font before it is destroyed.
+        for (int id : {group, remaining, reset}) GetDlgItem(id)->SetFont(GetFont(), FALSE);
+        font.DeleteObject();
+        font.Attach(replacement.Detach());
+        for (int id : {group, remaining, reset}) GetDlgItem(id)->SetFont(&font, TRUE);
+    };
+    apply(fiveFont_, fiveFontSize_, IDC_FIVE_GROUP, IDC_FIVE_REMAINING, IDC_FIVE_RESET);
+    apply(weekFont_, weekFontSize_, IDC_WEEK_GROUP, IDC_WEEK_REMAINING, IDC_WEEK_RESET);
+}
+
+void MainDialog::OnSettings() {
+    FontSettingsDialog dialog(fiveFontSize_, weekFontSize_, this);
+    if (dialog.DoModal() != IDOK) return;
+    fiveFontSize_ = dialog.fiveSize;
+    weekFontSize_ = dialog.weekSize;
+    ApplyQuotaFonts();
+    const bool fiveSaved = usage::SaveQuotaFontSize(iniPath_, L"FiveHourFontSize", fiveFontSize_);
+    const bool weekSaved = usage::SaveQuotaFontSize(iniPath_, L"WeeklyFontSize", weekFontSize_);
+    if (!fiveSaved || !weekSaved)
+        MessageBox(L"字体大小已在本次运行中生效，但配置保存失败。", L"无法保存设置", MB_OK | MB_ICONWARNING);
 }
 
 void MainDialog::OnRefresh() { if (worker_) worker_->Refresh(); }
